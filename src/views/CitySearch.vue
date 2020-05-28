@@ -1,22 +1,37 @@
 <template>
   <div>
-    
-    <favorite-cities v-bind:favoriteCities="favorites" ></favorite-cities>
+
+    <favorite-cities v-bind:favoriteCities="favorites"></favorite-cities>
     <h2>City Search</h2>
     <message-container v-bind:messages="messages"></message-container>
     <form v-on:submit.prevent="getCities">
-        <p>Enter city name: <input type="text" v-model="query" placeholder="Paris"> <button type="submit">Go</button></p>
+      <p>Enter city name: <input
+          type="text"
+          v-model="query"
+          placeholder="Paris"
+        > <button type="submit">Go</button></p>
     </form>
     <load-spinner v-if="showLoading"></load-spinner>
-    <ul class="cities" v-if="results && results.list.length > 0">
-      <li v-for="(city,index) in results.list" :key="index">
+    <ul
+      class="cities"
+      v-if="results && results.list.length > 0"
+    >
+      <li
+        v-for="(city,index) in results.list"
+        :key="index"
+      >
         <h2>{{ city.name }}, {{ city.sys.country }}</h2>
-        <p><router-link v-bind:to="{ name: 'CurrentWeather', params: { cityId: city.id } }">View Current Weather</router-link></p>
+        <p>
+          <router-link v-bind:to="{ name: 'CurrentWeather', params: { cityId: city.id } }">View Current Weather</router-link>
+        </p>
 
         <weather-summary v-bind:weatherData="city.weather"></weather-summary>
 
         <weather-data v-bind:weatherData="city.main"></weather-data>
-        <p><button class="save" v-on:click="saveCity(city)">Save City to Favorites</button></p>
+        <p><button
+            class="save"
+            v-on:click="saveCity(city)"
+          >Save City to Favorites</button></p>
       </li>
     </ul>
   </div>
@@ -52,10 +67,7 @@ export default {
   created () {
      if (this.$ls.get('favorites')){
     this.favorites = this.$ls.get('favorites');
-  } else {
-    this.$ls.set('favorites', this.favorites);
-  }
-
+    } 
   },
   methods: {
     saveCity: function (city) {
@@ -63,8 +75,6 @@ export default {
       // if(this.favorites.includes(city) == true ) {  // .includes function  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes 
       if(this.favorites.contains(city)) { // .contains checks for duplicates.
         console.log("city already added");
-        
-
       }else {
         this.favorites.push(city);
         this.$ls.set('favoriteCities', this.favorites);
@@ -75,14 +85,18 @@ export default {
       this.results = null;
       this.showLoading = true;
 
-      // TODO: Create a value called `cacheLabel` to refer to this query in the cache
 
-      // TODO: Create a value called `cacheExpiry` that represents 15 minutes in milliseconds.
+      let cacheLabel = 'citySearch_' + this.query;
+      let cacheExpiry = 15*60*1000; // 15mins
 
-      // TODO: Wrap this API call in a conditional to check if the request should be made.
-      // Use this.$ls.get() to check if there is a cached query
-      // If there is a cached query, use that data instead of making an API request
-      // If not, make the API request and then cache the value for the amount of time specified in `cacheExpiry`
+    if (this.$ls.get(cacheLabel)) {
+        console.log(' cache detected.');
+        this.results = this.$ls.get(cacheLabel);
+           this.showLoading = false;
+      } else {
+          console.log('Creating Cache ');
+      }
+
 
       API.get('find', {
         params: {
@@ -90,6 +104,9 @@ export default {
         }
       })
       .then(response => {
+         this.$ls.set(cacheLabel, response.data, cacheExpiry);
+            console.log('Cache crated for ' + cacheLabel);
+
         this.results = response.data;
         this.showLoading = false;
       })
@@ -111,7 +128,8 @@ export default {
   border: solid red 1px;
   padding: 5px;
 }
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
 
@@ -127,8 +145,6 @@ li {
   padding: 10px;
   margin: 5px;
 }
-
-
 
 a {
   color: #42b983;

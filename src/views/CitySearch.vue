@@ -73,11 +73,13 @@ export default {
     saveCity: function (city) {
       
       // if(this.favorites.includes(city) == true ) {  // .includes function  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes 
-      if(this.favorites.contains(city)) { // .contains checks for duplicates.
+      if(this.favorites.includes(city)) { // .contains checks for duplicates.is a diff fucntion for arrays
         console.log("city already added");
+         <h2>("city already added")</h2>
+        
       }else {
         this.favorites.push(city);
-        this.$ls.set('favoriteCities', this.favorites);
+        this.$ls.set('FavoriteCities', this.favorites);
 
       }
     },

@@ -97,8 +97,7 @@ export default {
            this.showLoading = false;
       } else {
           console.log('Creating Cache ');
-      }
-
+     
 
       API.get('find', {
         params: {
@@ -119,6 +118,9 @@ export default {
         });
         this.showLoading = false;
       });
+      
+       }
+
     }
   }
 }
